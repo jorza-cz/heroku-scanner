@@ -130,18 +130,27 @@ def run_scanner(item_id):
             scanner['category']['score'] = 5
             scanner['category']['message'] = f'No pudimos determinar la categoría adecuada para tu producto.'
 
-    # Shipping
+        # Shipping
     if 'shipping' in item_info:
         if 'me2' in item_info['shipping']['mode']:
+          if 'fulfillment' in item_info['shipping']['logistic_type']:
             if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
                 scanner['shipping']['score'] = 10 
-                scanner['shipping']['message'] = "Ofreces el mejor servicio de envío."
+                scanner['shipping']['message'] = "Ofreces el mejor servicio de envío!"
             else:
                 scanner['shipping']['score'] = 7 
-                scanner['shipping']['message'] = "Podrías ofrecer envíos gratis para mejorar tu publicación."
+                scanner['shipping']['message'] = "Podrías ofrecer envíos gratis dentro de Full para mejorar tu publicación."
+          else:
+            if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
+                scanner['shipping']['score'] = 7 
+                scanner['shipping']['message'] = "Ofreces envío gratis! Si lo haces Full tu publicación se volverá mas atractiva"
+            else:
+                scanner['shipping']['score'] = 5 
+                scanner['shipping']['message'] = "Podrías ofrecer envíos gratis y Full para mejorar tu publicación."
+
         else:
             scanner['shipping']['score'] = 2
-            scanner['shipping']['message'] = "Podrías ofrecer Mercado Envíos para mejorar tu publicación."
+            scanner['shipping']['message'] = "No ofrecer Mercado Envíos le quita relevancia a tu publicación."
 
     # Listing type
     listing_type = listing_by_site(item_site, item_info['listing_type_id'])
