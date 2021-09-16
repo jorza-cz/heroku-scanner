@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import time
 import re
 import numpy as np
+import streamlit as st
 
 BLACKLIST = [r'\d+\%', r'\d+\s\%', 'nuevo', 'descuento', 'usado', 'oferta', 'liquidaci', '%off', 'off!', 'envio', 'envío', 'gratis', 'llega', 'hoy', 'cuotas', 'sin interes', 'talle']
 
