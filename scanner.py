@@ -13,6 +13,8 @@ HEADERS = {
   'Content-Type': 'application/json'
 }
 
+item_id = st.text_input("item_id", "MLA866715742")
+
 def check_bad_words(blacklist, title):
     title = title.lower()
     for pattern in blacklist:
