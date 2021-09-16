@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import time
 import re
 import numpy as np
-import streamlit as st
 
 BLACKLIST = [r'\d+\%', r'\d+\s\%', 'nuevo', 'descuento', 'usado', 'oferta', 'liquidaci', '%off', 'off!', 'envio', 'envío', 'gratis', 'llega', 'hoy', 'cuotas', 'sin interes', 'talle']
 
@@ -12,8 +11,6 @@ HEADERS = {
   'x-caller-id': '593253618',
   'Content-Type': 'application/json'
 }
-
-item_id = st.text_input("item_id", "MLA900378644")
 
 def check_bad_words(blacklist, title):
     title = title.lower()
@@ -69,7 +66,7 @@ def run_scanner(item_id):
         brand_message = f'El título de la publicación no contiene el nombre de la marca "{brand_name}".' if (brand_score == 0) else ''
     else:
         brand_score = 1
-        brand_message = ''
+        brand_message = 'El título de la publicación no contiene el nombre de la marca...'
 
     model = next((attr for attr in item_info['attributes'] if attr['id'] == 'MODEL'), None)
     if model:
@@ -82,28 +79,34 @@ def run_scanner(item_id):
         model_message = f'El título de la publicación no contiene el nombre del modelo "{model_name}".' if (brand_score == 0) else ''
     else:
         model_score = 1
-        model_message = ''
+        model_message = 'El título de la publicación no contiene el nombre del modelo...'
 
     # Check blacklist words in title
     bar_words_score = check_bad_words(BLACKLIST, item_title)
     title_message = 'El título contiene términos irrelevantes.' if (bar_words_score == 0) else ''
+    len_title_score = 2 if len(item_title) >= 30 else 0
+    
+    len_message = f'El título de tu publicación contiene {len(item_title)} caracteres, recuerda que puedes usar hasta 60!' if (len_title_score == 0) else ''
 
-    scanner['title']['score'] = 4 + bar_words_score + brand_score + model_score
-    scanner['title']['message'] = "El título es correcto." if (scanner['title']['score'] == 10) else ' '.join([title_message, brand_message, model_message])
+    scanner['title']['score'] = 2 + len_title_score + bar_words_score + brand_score + model_score
+    scanner['title']['message'] = "El título es correcto." if (scanner['title']['score'] == 10) else ' '.join([title_message, brand_message, model_message, len_message])
 
 
     # Check image quality
-    picture_score = 1 if ('good_quality_picture' in item_info['tags']) else 0
-    thumbnail_score = 1 if ('good_quality_thumbnail' in item_info['tags']) else 0
-    scanner['image']['score'] = (picture_score + thumbnail_score)*5
-    if picture_score and thumbnail_score:
+    picture_score = 2 if ('good_quality_picture' in item_info['tags']) else 0
+    thumbnail_score = 2 if ('good_quality_thumbnail' in item_info['tags']) else 0
+    len_picture = 1 if len(item_info['pictures']) >= 10 else 0
+    scanner['image']['score'] = (picture_score + thumbnail_score + len_picture)*2
+    if picture_score and thumbnail_score and len_picture:
         message = "Las imágenes de tu publicación son muy buenas."
-    elif picture_score:
+    elif picture_score and len_picture:
         message = "La imagen de portada de tu publicación no es de buena calidad. Intenta mejorarla para atraer más compradores!."
-    elif thumbnail_score:
+    elif thumbnail_score and len_picture:
         message = "Las imágenes de tu publicación no son de buena calidad. Intenta mejorarlas para atraer más compradores!."
+    elif picture_score and  thumbnail_score:
+        message = "Puedes agregar hasta 10 imágenes a tu publicación, esto la hará mas relevante..."  
     else:
-        message = "Intenta mejorar las imágenes de portada y principales de tu publicación para atraer más compradores."
+        message = "Intenta mejorar las imágenes de portada y principales de tu publicación para atraer más compradores e intenta incorporar hasta 10 imágenes! "
     scanner['image']['message'] = message
 
     # Technical Specs
@@ -130,27 +133,30 @@ def run_scanner(item_id):
             scanner['category']['score'] = 5
             scanner['category']['message'] = f'No pudimos determinar la categoría adecuada para tu producto.'
 
-        # Shipping
+    # Shipping
     if 'shipping' in item_info:
         if 'me2' in item_info['shipping']['mode']:
-          if 'fulfillment' in item_info['shipping']['logistic_type']:
-            if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
-                scanner['shipping']['score'] = 10 
-                scanner['shipping']['message'] = "Ofreces el mejor servicio de envío!"
+            if 'fulfillment' in item_info['shipping']['logistic_type']:
+                if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
+                    scanner['shipping']['score'] = 10 
+                    scanner['shipping']['message'] = "Ofreces el mejor servicio de envío!"
+                else:
+                    scanner['shipping']['score'] = 7 
+                    scanner['shipping']['message'] = "Podrías ofrecer envíos gratis dentro de Full para mejorar tu publicación."
             else:
-                scanner['shipping']['score'] = 7 
-                scanner['shipping']['message'] = "Podrías ofrecer envíos gratis dentro de Full para mejorar tu publicación."
-          else:
-            if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
-                scanner['shipping']['score'] = 7 
-                scanner['shipping']['message'] = "Ofreces envío gratis! Si lo haces Full tu publicación se volverá mas atractiva"
-            else:
-                scanner['shipping']['score'] = 5 
-                scanner['shipping']['message'] = "Podrías ofrecer envíos gratis y Full para mejorar tu publicación."
+                if 'free_shipping' in item_info['shipping'] and item_info['shipping']['free_shipping']:
+                    scanner['shipping']['score'] = 7 
+                    scanner['shipping']['message'] = "Ofreces envío gratis! Si lo haces Full tu publicación se volverá mas atractiva"
+                else:
+                    scanner['shipping']['score'] = 5 
+                    scanner['shipping']['message'] = "Podrías ofrecer envíos gratis y Full para mejorar tu publicación."
 
         else:
             scanner['shipping']['score'] = 2
             scanner['shipping']['message'] = "No ofrecer Mercado Envíos le quita relevancia a tu publicación."
+
+       
+               
 
     # Listing type
     listing_type = listing_by_site(item_site, item_info['listing_type_id'])
@@ -176,6 +182,9 @@ def run_scanner(item_id):
                     answer_times.append(datetime_difference(q['date_created'], q['answer']['date_created']))
             median_response_time = np.median(answer_times)
             scanner['answers']['time'] = int(median_response_time // 60)
+        else:
+             scanner['answers']['time'] = 0 #TODO ver mensaje si no tiene preguntas
+            
     else:
         scanner['answers']['time'] = 0
 
