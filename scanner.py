@@ -66,7 +66,7 @@ def run_scanner(item_id):
             if not re.search(word, item_title):
                 brand_score = 0
                 break
-        brand_message = f'El título de la publicación no contiene el nombre de la marca "{brand_name}".' if (brand_score == 0) else ''
+        brand_message = f'El título de la publicación no contiene el nombre de la marca "{brand_name}".' if (brand_score == 0) else 'Ok marca.'
     else:
         brand_score = 1
         brand_message = 'El título de la publicación no contiene el nombre de la marca...'
@@ -79,17 +79,17 @@ def run_scanner(item_id):
             if not re.search(word, item_title):
                 model_score = 0
                 break
-        model_message = f'El título de la publicación no contiene el nombre del modelo "{model_name}".' if (brand_score == 0) else ''
+        model_message = f'El título de la publicación no contiene el nombre del modelo "{model_name}".' if (brand_score == 0) else 'Ok modelo.'
     else:
         model_score = 1
         model_message = 'El título de la publicación no contiene el nombre del modelo...'
 
     # Check blacklist words in title
     bar_words_score = check_bad_words(BLACKLIST, item_title)
-    title_message = 'El título contiene términos irrelevantes.' if (bar_words_score == 0) else ''
+    title_message = 'El título contiene términos irrelevantes.' if (bar_words_score == 0) else 'Ok palabras.'
     len_title_score = 2 if len(item_title) >= 30 else 0
     
-    len_message = f'El título de tu publicación contiene {len(item_title)} caracteres, recuerda que puedes usar hasta 60!' if (len_title_score == 0) else ''
+    len_message = f'El título de tu publicación contiene {len(item_title)} caracteres, recuerda que puedes usar hasta 60!' if (len_title_score == 0) else 'Ok caracteres.'
 
     scanner['title']['score'] = 2 + len_title_score + bar_words_score + brand_score + model_score
     scanner['title']['message'] = "El título es correcto." if (scanner['title']['score'] == 10) else ' '.join([title_message, brand_message, model_message, len_message])
