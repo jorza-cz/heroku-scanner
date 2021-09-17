@@ -1,3 +1,3 @@
-# cz-test-kwords
+# cz-scanner
 
-https://test-cz-kwords.herokuapp.com
+https://cz-scanner.herokuapp.com/
