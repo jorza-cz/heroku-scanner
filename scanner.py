@@ -13,7 +13,15 @@ HEADERS = {
   'Content-Type': 'application/json'
 }
 
-item_id = st.text_input("item_id", "MLA866715742")
+url = st.text_input("Ingrese la URL", 'https://www.mercadolibre.com.ar/MLA11551652')
+m = re.search('(M..-\d{7,10})|(M..\d{7,10})', url)
+it_cat = m.group(0)
+it_cat = it_cat.split('-')
+it_cat = "".join(it_cat)
+it_cat
+
+
+#item_id = st.text_input("item_id", "MLA866715742")
 
 def check_bad_words(blacklist, title):
     title = title.lower()
@@ -47,8 +55,18 @@ def run_scanner(item_id):
     output = dict()
     scanner = dict()
 
-    item_response = requests.get(f"https://api.mercadolibre.com/items/{item_id}")
-    item_info = item_response.json()
+    item_response = requests.get(f"https://api.mercadolibre.com/items/{it_cat}")
+    #catalog_response = requests.get(f"https://api.mercadolibre.com/products/{it_cat}")
+    
+    if item_response.status_code == 200:
+           item_info = item_response.json()
+    
+    else:
+        catalog_response = requests.get(f"https://api.mercadolibre.com/products/{it_cat}")
+        catalog_info = catalog_response.json()
+        cat_winner_id = catalog_info['buy_box_winner']['item_id']
+        item_response = requests.get(f"https://api.mercadolibre.com/items/{cat_winner_id}")
+        item_info = item_response.json()
 
     for name in ['title', 'image', 'specs','category', 'shipping', 'listing_type', 'answers', 'seller_level', 'catalog', 'ranking']:
         scanner[name] = {'score': 5, 'message': ''}
@@ -267,8 +285,10 @@ def run_scanner(item_id):
     output['title'] = item_info['title']
     output['image_url'] = item_info['pictures'][0]['url']
     output['price'] = item_info['price']
+    output['date_created'] = item_info['date_created'][:10]
+    output['last_updated'] = item_info['last_updated'][:10]
     output['scanner'] = scanner
 
     return output
 
-st.write(run_scanner(item_id))    
+st.write(run_scanner(it_cat))    
