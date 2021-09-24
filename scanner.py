@@ -326,7 +326,7 @@ def run_scanner(item_id):
         scanner['listing_type']['listing_message'] = "Tu publicación es de tipo Gratuita. Intenta mejorarla a Clásica o Premium."
 
 
-
+  
      #Answer time
     answers_response = requests.get(f"https://api.mercadolibre.com/questions/search?item={item_id}")
     if answers_response.status_code == 200:
