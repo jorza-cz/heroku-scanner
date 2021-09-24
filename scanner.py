@@ -38,9 +38,9 @@ def check_bad_words(denylist, title):
 
 def listing_by_site(site_id, type):
     if site_id in ['MPE', 'MLV', 'MLU']:
-        listings = {'free':'Gratuita', 'bronze':'Clásica', 'gold_special' : 'Premium'}
+        listings = {"free":'Gratuita', "bronze":'Clásica', "gold_special" : 'Premium'}
     else:
-        listings = {'free':'Gratuita', 'gold_special':'Clásica', 'gold_pro' : 'Premium'}
+        listings = {"free":'Gratuita', "gold_special":'Clásica', "gold_pro" : 'Premium', "gold_premium" : 'Premium'}
     return listings[type]
     
     
@@ -318,7 +318,7 @@ def run_scanner(item_id):
     if listing_type == 'Premium':
         scanner['listing_type']['score'] = 5
         scanner['listing_type']['listing_message'] = "Tu publicación es de tipo Premium."
-    if listing_type == 'Clásica':
+    elif listing_type == 'Clásica':
         scanner['listing_type']['score'] = 3
         scanner['listing_type']['listing_message'] = "Tu publicación es de tipo Clásica. Intenta mejorarla a Premium."
     else:
@@ -460,7 +460,7 @@ def run_scanner(item_id):
     output['date_created'] = item_info['date_created'][:10]
     output['last_updated'] = item_info['last_updated'][:10]
     output['scanner'] = scanner
-
+    
     return output
 
   
