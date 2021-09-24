@@ -19,7 +19,7 @@ HEADERS = {
   'Content-Type': 'application/json'
 }
 
-url = st.text_input("Ingrese la URL", 'https://www.mercadolibre.com.ar/MLA11551652')
+url = st.text_input("Ingrese la URL", 'https://www.mercadolibre.com.ar/MLA871163849')
 m = re.search('(M..-\d{7,10})|(M..\d{7,10})', url)
 it_cat = m.group(0)
 it_cat = it_cat.split('-')
@@ -189,6 +189,8 @@ def run_scanner(item_id):
     scanner['title']['len_message'] = len_message
     scanner['title']['bad_words_title_message'] = bad_words_title_message
     scanner['title']['trend_message'] = trend_message
+    scanner['matches'] = matches
+    scanner['matches_count'] = matches_count
     scanner['title']['trends_url'] = trend_url
 
     #Check Price Discount
@@ -454,8 +456,7 @@ def run_scanner(item_id):
     output['date_created'] = item_info['date_created'][:10]
     output['last_updated'] = item_info['last_updated'][:10]
     output['scanner'] = scanner
-    output['matches'] = matches 
-    output['cantidad de matches'] = matches_count
+
     return output
 
   
