@@ -189,8 +189,8 @@ def run_scanner(item_id):
     scanner['title']['len_message'] = len_message
     scanner['title']['bad_words_title_message'] = bad_words_title_message
     scanner['title']['trend_message'] = trend_message
-    scanner['matches'] = matches
-    scanner['matches_count'] = matches_count
+    scanner['title']['matches'] = matches
+    scanner['title']['matches_count'] = matches_count
     scanner['title']['trends_url'] = trend_url
 
     #Check Price Discount
