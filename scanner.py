@@ -198,8 +198,12 @@ def run_scanner(item_id):
         price_score = 5
         price_message = f'BIEN. El precio tiene descuento!'
     else:
-        price_score = 0
-        price_message = f'MAL. Podrías aplicar un descuento para ganar exposición....'
+        if "loyalty_discount_eligible" in item_info['tags']:
+            price_score = 0
+            price_message = f'MAL. No tienes desuento y tu publicación es elegible! Aprovechalo!'
+        else:
+            price_score = 0
+            price_message = f'MAL. No tienes descuento y tu publicación no es elegible para descuento!'  
     
     scanner['price']['score'] = price_score
     scanner['price']['price_message'] = price_message
